@@ -3,216 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>資產再平衡戰略導航儀</title>
+    <title>資產再平衡導航</title>
     <style>
         :root {
-            --bg-color: #f4f6f8;
+            --primary: #2563eb;
+            --bg: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #1a1d20;
-            --text-muted: #5c636a;
-            --border-color: #ced4da;
-            --primary-blue: #0056b3;
-            --primary-orange: #bd5300;
-            --primary-green: #146c43;
-            --primary-red: #b60202;
+            --text-title: #0f172a;
+            --text-body: #475569;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, "Microsoft JhengHei", sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; line-height: 1.5; }
-        .container { max-width: 600px; margin: 0 auto; }
-        h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 16px; text-align: center; color: var(--text-main); }
-        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 16px; }
-        .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 2px solid var(--bg-color); color: var(--text-main); }
-        .input-group { margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .input-group label { font-size: 0.9rem; color: var(--text-main); width: 55%; }
-        .input-group input { width: 45%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; text-align: right; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
-        .input-group input:focus { border-color: var(--primary-blue); outline: none; }
-        .input-group input[readonly] { background-color: var(--bg-color); color: var(--text-muted); cursor: not-allowed; }
-        .display-group { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; }
-        .display-group .label { color: var(--text-muted); }
-        .display-group .value { font-weight: 600; font-variant-numeric: tabular-nums; }
-        .rebalance-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color); }
-        .rebalance-action { font-size: 1rem; font-weight: bold; text-align: center; padding: 12px; border-radius: 6px; background-color: var(--bg-color); margin-top: 8px; word-break: break-all; }
-        .status-card { text-align: center; font-weight: bold; font-size: 0.95rem; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 8px; }
+        body { background: var(--bg); color: var(--text-body); font-family: 'Inter', system-ui, sans-serif; padding: 20px; margin: 0; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 24px; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        h2 { color: var(--text-title); font-size: 1.25rem; margin-bottom: 16px; }
+        
+        .input-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-title); }
+        input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); outline: none; }
+        
+        .btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        
+        .output-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .output-label { font-size: 0.9rem; }
+        .output-value { font-weight: 700; color: var(--text-title); }
+        
+        .rebalance-box { background: #eff6ff; padding: 16px; border-radius: 12px; margin-top: 16px; text-align: center; }
+        .rebalance-text { font-weight: 800; font-size: 1.1rem; color: var(--primary); margin-top: 8px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>資產再平衡戰略導航儀</h2>
+    <div class="header"><h2>資產再平衡導航儀</h2></div>
     
-    <!-- 手動輸入區 -->
     <div class="card">
-        <div class="card-title">手動控制變數</div>
-        <div class="input-group">
-            <label>信貸總額定錨</label>
-            <input type="number" id="loanAmount" value="1800000">
-        </div>
-        <div class="input-group">
-            <label>今日正二股價</label>
-            <input type="number" id="stockPrice" value="310.3" step="0.1">
-        </div>
-        <div class="input-group">
-            <label>目前持有股數</label>
-            <input type="number" id="stockShares" value="4223.7" step="0.1">
-        </div>
-        <div class="input-group">
-            <label>股票當前現值 (公式)</label>
-            <input type="text" id="stockMarketValue" readonly>
-        </div>
-        <div class="input-group">
-            <label>將來銀行活存現金</label>
-            <input type="number" id="cashReserve" value="720000">
-        </div>
-        <div class="input-group">
-            <label>設定股票比例 (%)</label>
-            <input type="number" id="targetStockRatio" value="60" min="0" max="100">
-        </div>
-        <div class="input-group">
-            <label>設定現金比例 (%)</label>
-            <input type="text" id="targetCashRatio" readonly>
-        </div>
+        <div class="input-group"><label>信貸總額</label><input type="number" id="loan" value="1800000"></div>
+        <div class="input-group"><label>今日正二股價</label><input type="number" id="price" value="310.3"></div>
+        <div class="input-group"><label>持有股數</label><input type="number" id="shares" value="4223.7"></div>
+        <div class="input-group"><label>銀行活存現金</label><input type="number" id="cash" value="720000"></div>
+        <div class="input-group"><label>目標股票比例 (%)</label><input type="number" id="targetRatio" value="60"></div>
     </div>
 
-    <!-- 戰略輸出與再平衡導航 -->
-    <div class="card">
-        <div class="card-title">戰略儀表板</div>
-        <div class="display-group">
-            <span class="label">正二當前市值:</span>
-            <span class="value" id="outStockMarketValue">$0</span>
-        </div>
-        <div class="display-group">
-            <span class="label">實質曝險金額:</span>
-            <span class="value" id="outRealExposure">$0</span>
-        </div>
-        <div class="display-group">
-            <span class="label">個人淨資產(淨值):</span>
-            <span class="value" id="outNetAsset">$0</span>
-        </div>
-        <div class="display-group">
-            <span class="label">當前股票比例:</span>
-            <span class="value" id="outStockRatio">0.0%</span>
-        </div>
-        <div class="display-group">
-            <span class="label">當前現金比例:</span>
-            <span class="value" id="outCashRatio">0.0%</span>
-        </div>
-        <div class="display-group">
-            <span class="label">實質槓桿倍數:</span>
-            <span class="value" id="outCurrentLeverage">0.00</span>
-        </div>
-        <div class="display-group">
-            <span class="label">失業抗震月數:</span>
-            <span class="value" id="outMonthsCanSurvive">0.0</span>
-        </div>
-        
-        <div class="rebalance-section">
-            <div class="display-group">
-                <span class="label" style="font-weight: 600;">再平衡目標比例:</span>
-                <span class="value" id="outTargetRatioDisplay" style="color: var(--text-main);">股票 60% / 現金 40%</span>
-            </div>
-            <div class="display-group" style="margin-top: 4px;">
-                <span class="label" style="font-weight: 600; color: var(--text-main);">資產再平衡決策:</span>
-            </div>
-            <div class="rebalance-action" id="outRebalanceAction">無需變動</div>
-        </div>
-    </div>
+    <button class="btn" onclick="calc()">計算再平衡策略</button>
 
-    <!-- 下方安全監控燈號 -->
-    <div class="status-card" id="outStatusCard">
-        系統運作正常
+    <div class="card" style="margin-top:20px;">
+        <h2>戰略儀表板</h2>
+        <div class="output-item"><span class="output-label">當前市值</span><span class="output-value" id="valMarket">$0</span></div>
+        <div class="output-item"><span class="output-label">實質槓桿</span><span class="output-value" id="valLev">0.00</span></div>
+        <div class="rebalance-box">
+            <div class="output-label">再平衡決策</div>
+            <div class="rebalance-text" id="valAction">等待計算...</div>
+        </div>
     </div>
 </div>
 
 <script>
-    function formatCurrency(num) {
-        return '$' + Math.round(num).toLocaleString('en-US');
+    function calc() {
+        const p = parseFloat(document.getElementById('price').value);
+        const s = parseFloat(document.getElementById('shares').value);
+        const c = parseFloat(document.getElementById('cash').value);
+        const target = parseFloat(document.getElementById('targetRatio').value) / 100;
+        
+        const market = p * s;
+        const total = market + c;
+        const lev = (market * 2) / total;
+        
+        document.getElementById('valMarket').innerText = '$' + Math.round(market).toLocaleString();
+        document.getElementById('valLev').innerText = lev.toFixed(2);
+        
+        const ideal = total * target;
+        const diff = ideal - market;
+        const shares = Math.abs(diff) / p;
+        
+        const action = diff > 0 ? "買進" : "賣出";
+        const color = diff > 0 ? "#2563eb" : "#c2410c";
+        
+        document.getElementById('valAction').innerHTML = 
+            `<span style="color:${color}">${action} ${shares.toFixed(1)} 股<br>約 $${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
     }
-
-    function calculate() {
-        const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
-        const stockPrice = parseFloat(document.getElementById('stockPrice').value) || 0;
-        const stockShares = parseFloat(document.getElementById('stockShares').value) || 0;
-        const cashReserve = parseFloat(document.getElementById('cashReserve').value) || 0;
-        const targetStockRatioPercent = parseFloat(document.getElementById('targetStockRatio').value) || 0;
-
-        const targetCashRatioPercent = 100 - targetStockRatioPercent;
-        document.getElementById('targetCashRatio').value = targetCashRatioPercent + '%';
-
-        const targetStockRatio = targetStockRatioPercent / 100;
-
-        const stockMarketValue = stockPrice * stockShares;
-        document.getElementById('stockMarketValue').value = Math.round(stockMarketValue).toLocaleString('en-US');
-
-        const totalAsset = cashReserve + stockMarketValue;
-        const netAsset = totalAsset - loanAmount;
-        const realExposure = stockMarketValue * 2;
-
-        let currentLeverage = 0;
-        let stockRatio = 0;
-        let cashRatio = 0;
-
-        if (totalAsset > 0) {
-            currentLeverage = realExposure / totalAsset;
-            stockRatio = stockMarketValue / totalAsset;
-            cashRatio = cashReserve / totalAsset;
-        }
-        const monthsCanSurvive = cashReserve / 40000;
-
-        document.getElementById('outStockMarketValue').innerText = formatCurrency(stockMarketValue);
-        document.getElementById('outRealExposure').innerText = formatCurrency(realExposure);
-        document.getElementById('outNetAsset').innerText = formatCurrency(netAsset);
-        document.getElementById('outStockRatio').innerText = (stockRatio * 100).toFixed(1) + '%';
-        document.getElementById('outCashRatio').innerText = (cashRatio * 100).toFixed(1) + '%';
-        document.getElementById('outCurrentLeverage').innerText = currentLeverage.toFixed(2);
-        document.getElementById('outMonthsCanSurvive').innerText = monthsCanSurvive.toFixed(1);
-
-        document.getElementById('outTargetRatioDisplay').innerText = `股票 ${targetStockRatioPercent}% / 現金 ${targetCashRatioPercent}%`;
-
-        const idealStockValue = totalAsset * targetStockRatio;
-        const rebalanceAmount = idealStockValue - stockMarketValue;
-        let targetShares = 0;
-        if (stockPrice > 0) {
-            targetShares = Math.abs(rebalanceAmount) / stockPrice;
-        }
-
-        const actionEl = document.getElementById('outRebalanceAction');
-        if (Math.abs(rebalanceAmount) < 100 || targetShares < 0.1) {
-            actionEl.innerText = "無需變動（符合資產配置）";
-            actionEl.style.color = "var(--primary-green)";
-        } else if (rebalanceAmount > 0) {
-            actionEl.innerText = `[現金 -> 股票] 買進 ${targetShares.toFixed(1)} 股 (約 ${formatCurrency(rebalanceAmount)})`;
-            actionEl.style.color = "var(--primary-blue)";
-        } else {
-            actionEl.innerText = `[股票 -> 現金] 賣出 ${targetShares.toFixed(1)} 股 (約 ${formatCurrency(Math.abs(rebalanceAmount))})`;
-            actionEl.style.color = "var(--primary-orange)";
-        }
-
-        const statusCard = document.getElementById('outStatusCard');
-        if (currentLeverage > 1.6) {
-            statusCard.innerText = `警報：實質槓桿過高 (${currentLeverage.toFixed(2)}倍)！請執行再平衡，賣出正二或補充現金！`;
-            statusCard.style.color = "var(--primary-red)";
-            statusCard.style.backgroundColor = "#fff5f5";
-            statusCard.style.borderColor = "var(--primary-red)";
-        } else if (monthsCanSurvive < 12) {
-            statusCard.innerText = `警告：第一水庫低於 12 個月安全線！請暫停加碼股票，全力補滿現金！`;
-            statusCard.style.color = "var(--primary-orange)";
-            statusCard.style.backgroundColor = "#fff9f2";
-            statusCard.style.borderColor = "var(--primary-orange)";
-        } else {
-            statusCard.innerText = `系統運作正常：實質槓桿 ${currentLeverage.toFixed(2)} 倍，防空洞穩固，請繼續維持策略。`;
-            statusCard.style.color = "var(--primary-green)";
-            statusCard.style.backgroundColor = "#f2fdf2";
-            statusCard.style.borderColor = "var(--primary-green)";
-        }
-    }
-
-    const inputs = ['loanAmount', 'stockPrice', 'stockShares', 'cashReserve', 'targetStockRatio'];
-    inputs.forEach(id => {
-        document.getElementById(id).addEventListener('input', calculate);
-    });
-
-    calculate();
 </script>
-
 </body>
 </html>
