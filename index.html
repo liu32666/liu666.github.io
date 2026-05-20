@@ -5,55 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>資產戰情儀表板</title>
     <style>
-        :root { 
-            --bg: #0b1120; 
-            --card: #1e293b; 
-            --accent: #38bdf8; 
-            --text: #f1f5f9; 
-            --text-muted: #94a3b8;
-            --danger: #ef4444; 
-            --success: #22c55e; 
-        }
-        body { background: var(--bg); color: var(--text); font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; padding: 20px; display: flex; justify-content: center; }
+        :root { --bg: #0b1120; --card: #1e293b; --accent: #38bdf8; --text: #f1f5f9; --text-muted: #94a3b8; }
+        body { background: var(--bg); color: var(--text); font-family: 'PingFang TC', sans-serif; padding: 20px; display: flex; justify-content: center; }
         .dashboard { width: 100%; max-width: 450px; }
         .card { background: var(--card); border: 1px solid #334155; border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
-        h2 { text-align: center; font-size: 1.5rem; margin-bottom: 20px; color: var(--accent); }
         .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        label { font-size: 0.95rem; color: var(--text-muted); }
-        input { background: #0f172a; border: 1px solid #475569; color: var(--text); padding: 10px; border-radius: 10px; width: 50%; text-align: right; font-weight: 600; font-size: 1rem; }
-        .btn { width: 100%; padding: 18px; background: #38bdf8; border: none; border-radius: 16px; color: #0b1120; font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
-        .btn:active { transform: scale(0.97); }
+        input { background: #0f172a; border: 1px solid #475569; color: var(--accent); padding: 10px; border-radius: 10px; width: 50%; text-align: right; font-weight: 600; }
+        .btn { width: 100%; padding: 18px; background: #38bdf8; border: none; border-radius: 16px; color: #0b1120; font-weight: 900; font-size: 1.1rem; cursor: pointer; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
         .stat-box { background: #0f172a; padding: 16px; border-radius: 16px; text-align: center; }
-        .stat-val { font-size: 1.25rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
-        #status-card { margin-top: 20px; padding: 20px; border-radius: 16px; text-align: center; font-weight: 700; border: 1px solid #334155; }
+        .stat-val { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
+        .action-card { background: rgba(56,189,248,0.1); padding: 20px; border-radius: 16px; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
 <div class="dashboard">
     <h2>資產再平衡導航</h2>
     <div class="card">
-        <div class="input-row"><label>信貸總額 (元)</label><input type="number" id="loan" value="1800000"></div>
+        <div class="input-row"><label>信貸總額</label><input type="number" id="loan" value="1800000"></div>
         <div class="input-row"><label>正二股價</label><input type="number" id="price" value="310.3"></div>
         <div class="input-row"><label>持有股數</label><input type="number" id="shares" value="4223.7"></div>
-        <div class="input-row"><label>現金儲備 (元)</label><input type="number" id="cash" value="720000"></div>
-        <div class="input-row"><label>目標股票比例 (%)</label><input type="number" id="target" value="60"></div>
+        <div class="input-row"><label>目前現金</label><input type="number" id="cash" value="720000"></div>
+        <div class="input-row"><label>目標股票%</label><input type="number" id="target" value="60"></div>
     </div>
-    
     <button class="btn" onclick="calc()">執行再平衡計算</button>
-
     <div class="card">
         <div class="stat-grid">
-            <div class="stat-box"><small>當前總市值</small><div class="stat-val" id="valMarket">$0</div></div>
+            <div class="stat-box"><small>總市值</small><div class="stat-val" id="valMarket">$0</div></div>
             <div class="stat-box"><small>實質槓桿</small><div class="stat-val" id="valLev">0.00</div></div>
-            <div class="stat-box"><small>目前股債比</small><div class="stat-val" id="valRatio">0%</div></div>
-            <div class="stat-box"><small>抗震月數</small><div class="stat-val" id="valMonths">0</div></div>
         </div>
-        <div id="actionBox" style="margin-top:20px; padding:18px; background:rgba(56,189,248,0.1); border-radius:16px; text-align:center;">
-            <div style="color:var(--text-muted); font-size:0.9rem;">再平衡交易建議</div>
-            <div id="actionText" style="font-size:1.3rem; font-weight:900; color:var(--accent); margin-top:8px;">等待計算...</div>
+        <div class="action-card">
+            <div id="actionText" style="font-size:1.1rem; font-weight:800; color:var(--accent);">等待計算...</div>
+            <div id="cashChange" style="font-size:0.9rem; color:var(--text-muted); margin-top:10px;"></div>
+            <div id="newCashTotal" style="font-size:0.9rem; font-weight:bold; color:#22c55e; margin-top:5px;"></div>
         </div>
-        <div id="status-card" style="margin-top: 15px;">系統待命</div>
     </div>
 </div>
 <script>
@@ -64,18 +49,26 @@
         const tr = parseFloat(document.getElementById('target').value) / 100;
         const market = p * s;
         const total = market + c;
-        const lev = (market * 2) / total;
-        const ratio = market / total;
-        document.getElementById('valMarket').innerText = '$' + Math.round(market).toLocaleString();
-        document.getElementById('valLev').innerText = lev.toFixed(2);
-        document.getElementById('valRatio').innerText = (ratio * 100).toFixed(1) + '%';
-        document.getElementById('valMonths').innerText = (c / 40000).toFixed(1);
         const diff = (total * tr) - market;
-        const action = Math.abs(diff) < 100 ? "無需變動" : (diff > 0 ? `買進 ${Math.abs(diff/p).toFixed(1)} 股` : `賣出 ${Math.abs(diff/p).toFixed(1)} 股`);
-        document.getElementById('actionText').innerText = action;
-        const sc = document.getElementById('status-card');
-        if (lev > 1.6) { sc.innerText = "⚠️ 槓桿警報：實質曝險過高"; sc.style.background = "#450a0a"; sc.style.color = "#fca5a5"; }
-        else { sc.innerText = "✅ 防空洞狀態穩固"; sc.style.background = "#064e3b"; sc.style.color = "#6ee7b7"; }
+        
+        document.getElementById('valMarket').innerText = '$' + Math.round(market).toLocaleString();
+        document.getElementById('valLev').innerText = ((market * 2) / total).toFixed(2);
+        
+        const sharesNeeded = Math.abs(diff / p).toFixed(1);
+        const cashValue = Math.abs(Math.round(diff)).toLocaleString();
+        const newCash = Math.round(c - diff).toLocaleString();
+
+        if (Math.abs(diff) < 100) {
+            document.getElementById('actionText').innerText = "無需變動";
+        } else if (diff > 0) {
+            document.getElementById('actionText').innerText = `買進 ${sharesNeeded} 股`;
+            document.getElementById('cashChange').innerText = `需花費現金：$${cashValue}`;
+            document.getElementById('newCashTotal').innerText = `執行後現金餘額：$${newCash}`;
+        } else {
+            document.getElementById('actionText').innerText = `賣出 ${sharesNeeded} 股`;
+            document.getElementById('cashChange').innerText = `換回現金：$${cashValue}`;
+            document.getElementById('newCashTotal').innerText = `執行後現金水位：$${newCash}`;
+        }
     }
 </script>
 </body>
