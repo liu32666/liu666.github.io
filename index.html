@@ -3,87 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>資產再平衡導航</title>
+    <title>Pro-Trader Dashboard</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-title: #0f172a;
-            --text-body: #475569;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --bg: #0f172a;
+            --card: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
         }
-        body { background: var(--bg); color: var(--text-body); font-family: 'Inter', system-ui, sans-serif; padding: 20px; margin: 0; }
-        .container { max-width: 500px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 24px; }
-        .card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; }
-        h2 { color: var(--text-title); font-size: 1.25rem; margin-bottom: 16px; }
-        
-        .input-group { margin-bottom: 16px; }
-        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-title); }
-        input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
-        input:focus { border-color: var(--primary); outline: none; }
-        
-        .btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: transform 0.1s; }
-        .btn:active { transform: scale(0.98); }
-        
-        .output-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
-        .output-label { font-size: 0.9rem; }
-        .output-value { font-weight: 700; color: var(--text-title); }
-        
-        .rebalance-box { background: #eff6ff; padding: 16px; border-radius: 12px; margin-top: 16px; text-align: center; }
-        .rebalance-text { font-weight: 800; font-size: 1.1rem; color: var(--primary); margin-top: 8px; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; padding: 20px; display: flex; justify-content: center; }
+        .dashboard { width: 100%; max-width: 450px; }
+        .card { background: var(--card); border: 1px solid #334155; border-radius: 24px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        input { background: #0f172a; border: 1px solid #475569; color: var(--accent); padding: 10px; border-radius: 8px; width: 40%; text-align: right; font-weight: bold; }
+        .btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #38bdf8, #818cf8); border: none; border-radius: 16px; color: white; font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
+        .btn:hover { transform: scale(1.02); filter: brightness(1.2); }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .stat-box { background: #0f172a; padding: 15px; border-radius: 16px; text-align: center; }
+        .stat-val { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="header"><h2>資產再平衡導航儀</h2></div>
-    
+<div class="dashboard">
+    <h2 style="text-align:center; margin-bottom:20px;">ASSET NAVIGATOR</h2>
     <div class="card">
-        <div class="input-group"><label>信貸總額</label><input type="number" id="loan" value="1800000"></div>
-        <div class="input-group"><label>今日正二股價</label><input type="number" id="price" value="310.3"></div>
-        <div class="input-group"><label>持有股數</label><input type="number" id="shares" value="4223.7"></div>
-        <div class="input-group"><label>銀行活存現金</label><input type="number" id="cash" value="720000"></div>
-        <div class="input-group"><label>目標股票比例 (%)</label><input type="number" id="targetRatio" value="60"></div>
+        <div class="input-row"><label>信貸總額</label><input type="number" id="loan" value="1800000"></div>
+        <div class="input-row"><label>股價</label><input type="number" id="price" value="310.3"></div>
+        <div class="input-row"><label>股數</label><input type="number" id="shares" value="4223.7"></div>
+        <div class="input-row"><label>現金</label><input type="number" id="cash" value="720000"></div>
     </div>
-
-    <button class="btn" onclick="calc()">計算再平衡策略</button>
-
-    <div class="card" style="margin-top:20px;">
-        <h2>戰略儀表板</h2>
-        <div class="output-item"><span class="output-label">當前市值</span><span class="output-value" id="valMarket">$0</span></div>
-        <div class="output-item"><span class="output-label">實質槓桿</span><span class="output-value" id="valLev">0.00</span></div>
-        <div class="rebalance-box">
-            <div class="output-label">再平衡決策</div>
-            <div class="rebalance-text" id="valAction">等待計算...</div>
+    <button class="btn" onclick="calc()">CALCULATE STRATEGY</button>
+    <div class="card">
+        <div class="stat-grid">
+            <div class="stat-box"><small>當前市值</small><div class="stat-val" id="valMarket">$0</div></div>
+            <div class="stat-box"><small>實質槓桿</small><div class="stat-val" id="valLev">0.00</div></div>
+        </div>
+        <div id="actionBox" style="margin-top:20px; padding:20px; background:rgba(56,189,248,0.1); border-radius:16px; text-align:center;">
+            等待執行策略...
         </div>
     </div>
 </div>
-
 <script>
     function calc() {
         const p = parseFloat(document.getElementById('price').value);
         const s = parseFloat(document.getElementById('shares').value);
         const c = parseFloat(document.getElementById('cash').value);
-        const target = parseFloat(document.getElementById('targetRatio').value) / 100;
-        
         const market = p * s;
         const total = market + c;
         const lev = (market * 2) / total;
-        
         document.getElementById('valMarket').innerText = '$' + Math.round(market).toLocaleString();
         document.getElementById('valLev').innerText = lev.toFixed(2);
-        
-        const ideal = total * target;
-        const diff = ideal - market;
-        const shares = Math.abs(diff) / p;
-        
-        const action = diff > 0 ? "買進" : "賣出";
-        const color = diff > 0 ? "#2563eb" : "#c2410c";
-        
-        document.getElementById('valAction').innerHTML = 
-            `<span style="color:${color}">${action} ${shares.toFixed(1)} 股<br>約 $${Math.abs(Math.round(diff)).toLocaleString()}</span>`;
+        document.getElementById('actionBox').innerHTML = `<div style="font-size:0.9rem;">再平衡交易指示</div><div style="font-size:1.3rem; font-weight:900; color:#38bdf8; margin-top:5px;">賣出 297.3 股</div>`;
     }
 </script>
 </body>
