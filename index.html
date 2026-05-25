@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Terry 資產配置小工具</title>
     <style>
-        /* 週期延長至 30s，極致的緩慢呼吸感 */
         @keyframes zen-flow {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -13,17 +12,19 @@
         body { 
             margin: 0; min-height: 100vh;
             background: linear-gradient(135deg, #e5e7eb, #bfdbfe, #fed7aa, #d9f99d, #e5e7eb);
-            background-size: 500% 500%; animation: zen-flow 30s ease infinite; /* 這裡調整為 30秒 */
+            background-size: 500% 500%; animation: zen-flow 30s ease infinite;
             display: flex; justify-content: center; align-items: center; padding: 20px;
             font-family: 'Segoe UI', system-ui, sans-serif; color: #1f2937;
         }
         .card { 
-            width: 100%; max-width: 450px; background: rgba(255, 255, 255, 0.85); 
+            width: 100%; max-width: 480px; background: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(12px); border-radius: 24px; padding: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.08); border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); border: 1px solid rgba(255, 255, 255, 0.5);
         }
         h1 { text-align: center; font-size: 1.4rem; font-weight: 800; margin-bottom: 25px; color: #111827; }
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .section-title { font-size: 0.9rem; font-weight: 800; color: #4b5563; margin: 15px 0 8px 0; border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; }
+        label { font-size: 0.95rem; font-weight: 600; color: #374151; }
         input { 
             background: rgba(243, 244, 246, 0.9); border: 1px solid #d1d5db;
             padding: 10px; border-radius: 8px; width: 45%; text-align: right; 
@@ -31,31 +32,41 @@
         }
         .btn { 
             width: 100%; padding: 16px; background: #111827; color: white; 
-            border: none; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.3s;
+            border: none; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 15px;
         }
         .btn:hover { background: #374151; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
         .box { background: white; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e5e7eb; }
         .val { font-size: 1.1rem; font-weight: 800; color: #111827; margin-top: 4px; }
-        #status { margin-top: 20px; padding: 12px; border-radius: 10px; text-align: center; font-weight: 700; }
+        #status { margin-top: 20px; padding: 12px; border-radius: 10px; text-align: center; font-weight: 700; white-space: pre-line; }
+        #details { white-space: pre-line; line-height: 1.5; }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>Terry 資產配置小工具</h1>
+    
     <div class="row"><label>信貸總額</label><input type="number" id="loan" value="1800000"></div>
-    <div class="row"><label>正二股價</label><input type="number" id="price" value="310.3"></div>
-    <div class="row"><label>目前股數</label><input type="number" id="shares" value="4223.7"></div>
-    <div class="row"><label>目前現金</label><input type="number" id="cash" value="720000"></div>
+    <div class="row"><label>目前現金</label><input type="number" id="cash" value="730000"></div>
     <div class="row"><label>目標股票%</label><input type="number" id="target" value="60"></div>
+
+    <div class="section-title">00631L 元大正二</div>
+    <div class="row"><label>目前股價</label><input type="number" id="price631" value="31.25"></div>
+    <div class="row"><label>目前股數</label><input type="number" id="shares631" value="15000"></div>
+
+    <div class="section-title">00685L 群益正二</div>
+    <div class="row"><label>目前股價</label><input type="number" id="price685" value="275"></div>
+    <div class="row"><label>目前股數</label><input type="number" id="shares685" value="2000"></div>
+
     <button class="btn" onclick="calc()">分析資產配置</button>
+    
     <div id="res" style="display:none;">
         <div class="grid">
-            <div class="box"><small style="color:#6b7280">總市值</small><div class="val" id="vMarket">-</div></div>
+            <div class="box"><small style="color:#6b7280">總投資市值</small><div class="val" id="vMarket">-</div></div>
             <div class="box"><small style="color:#6b7280">資產淨值</small><div class="val" id="vNet">-</div></div>
             <div class="box"><small style="color:#6b7280">股票比例</small><div class="val" id="vStock" style="color:#059669">-</div></div>
             <div class="box"><small style="color:#6b7280">現金比例</small><div class="val" id="vCash" style="color:#d97706">-</div></div>
-            <div class="box"><small style="color:#6b7280">槓桿倍數</small><div class="val" id="vLev">-</div></div>
+            <div class="box"><small style="color:#6b7280">整體曝險倍數</small><div class="val" id="vLev">-</div></div>
             <div class="box"><small style="color:#6b7280">抗震月數</small><div class="val" id="vMonths">-</div></div>
         </div>
         <div id="status"></div>
@@ -65,34 +76,77 @@
         </div>
     </div>
 </div>
+
 <script>
     function calc() {
-        const p = parseFloat(document.getElementById('price').value);
-        const s = parseFloat(document.getElementById('shares').value);
-        const c = parseFloat(document.getElementById('cash').value);
-        const l = parseFloat(document.getElementById('loan').value);
-        const tr = parseFloat(document.getElementById('target').value) / 100;
-        const market = p * s;
-        const total = market + c;
-        const net = total - l;
-        const lev = (market * 2) / total;
+        const c = parseFloat(document.getElementById('cash').value) || 0;
+        const l = parseFloat(document.getElementById('loan').value) || 0;
+        const tr = (parseFloat(document.getElementById('target').value) || 0) / 100;
+        
+        const p631 = parseFloat(document.getElementById('price631').value) || 0;
+        const s631 = parseFloat(document.getElementById('shares631').value) || 0;
+        const p685 = parseFloat(document.getElementById('price685').value) || 0;
+        const s685 = parseFloat(document.getElementById('shares685').value) || 0;
+        
+        const market631 = p631 * s631;
+        const market685 = p685 * s685;
+        const totalMarket = market631 + market685;
+        
+        // 修正後的總資產與淨值邏輯
+        const totalAsset = totalMarket + c; 
+        const netValue = totalAsset - l; // 總資產 - 負債 = 淨資產
+        
+        // 實戰正二整體曝險倍數 = (股票總市值 * 2) / 總資產
+        const lev = totalAsset > 0 ? (totalMarket * 2) / totalAsset : 0;
+        
         document.getElementById('res').style.display = 'block';
-        document.getElementById('vMarket').innerText = '$' + Math.round(market).toLocaleString();
-        document.getElementById('vNet').innerText = '$' + Math.round(net).toLocaleString();
-        document.getElementById('vStock').innerText = ((market/total)*100).toFixed(1) + '%';
-        document.getElementById('vCash').innerText = ((c/total)*100).toFixed(1) + '%';
+        document.getElementById('vMarket').innerText = '$' + Math.round(totalMarket).toLocaleString();
+        
+        // 優化淨值顯示：如果是負數，顯示紅色字體提醒
+        const netEl = document.getElementById('vNet');
+        netEl.innerText = '$' + Math.round(netValue).toLocaleString();
+        if(netValue < 0) {
+            netEl.style.color = '#dc2626';
+        } else {
+            netEl.style.color = '#111827';
+        }
+        
+        document.getElementById('vStock').innerText = totalAsset > 0 ? ((totalMarket / totalAsset) * 100).toFixed(1) + '%' : '0%';
+        document.getElementById('vCash').innerText = totalAsset > 0 ? ((c / totalAsset) * 100).toFixed(1) + '%' : '0%';
         document.getElementById('vLev').innerText = lev.toFixed(2) + 'x';
         document.getElementById('vMonths').innerText = (c / 40000).toFixed(1) + '月';
         
+        // 狀態警告邏輯
         const st = document.getElementById('status');
-        if(lev > 1.63) { st.innerText = "⚠️ 槓桿過高 (> 1.63)"; st.style.background = "#fee2e2"; st.style.color = "#991b1b"; }
-        else if(lev < 0.77) { st.innerText = "💡 需補足現金 (< 0.77)"; st.style.background = "#fef3c7"; st.style.color = "#92400e"; }
-        else { st.innerText = "✅ 配置健康"; st.style.background = "#d1fae5"; st.style.color = "#065f46"; }
+        if (netValue < 0) {
+            st.innerText = "⚠️ 警報：資產淨值為負（負債大於總資產）\n請注意現金流安全！";
+            st.style.background = "#fee2e2"; st.style.color = "#991b1b";
+        } else if(lev > 1.63) { 
+            st.innerText = "⚠️ 槓桿過高 (> 1.63)"; st.style.background = "#fee2e2"; st.style.color = "#991b1b"; 
+        } else if(lev < 0.77) { 
+            st.innerText = "💡 需補足現金 (< 0.77)"; st.style.background = "#fef3c7"; st.style.color = "#92400e"; 
+        } else { 
+            st.innerText = "✅ 配置健康"; st.style.background = "#d1fae5"; st.style.color = "#065f46"; 
+        }
         
-        const diff = (total * tr) - market;
-        const qty = Math.abs(diff / p);
-        document.getElementById('action').innerText = Math.abs(diff)<100 ? "無需變動" : `${diff > 0 ? "買進" : "賣出"} ${qty.toFixed(1)} 股`;
-        document.getElementById('details').innerText = Math.abs(diff)<100 ? "" : `調整後部位：${(diff > 0 ? s + qty : s - qty).toFixed(1)} 股 | 現金：$${Math.round(c - diff).toLocaleString()}`;
+        // 再平衡計算
+        const diff = (totalAsset * tr) - totalMarket;
+        const actEl = document.getElementById('action');
+        const detEl = document.getElementById('details');
+        
+        if (Math.abs(diff) < 100) {
+            actEl.innerText = "無需變動";
+            detEl.innerText = "";
+        } else {
+            const actionText = diff > 0 ? "需買進總額" : "需賣出總額";
+            actEl.innerText = `${actionText}：$${Math.round(Math.abs(diff)).toLocaleString()}`;
+            
+            const halfDiff = Math.abs(diff) / 2;
+            const qty631 = p631 > 0 ? (halfDiff / p631).toFixed(1) : 0;
+            const qty685 = p685 > 0 ? (halfDiff / p685).toFixed(1) : 0;
+            
+            detEl.innerText = `建議均分調整（各50%）：\n00631L ${diff > 0 ? '買進' : '賣出'} ${qty631} 股\n00685L ${diff > 0 ? '買進' : '賣出'} ${qty685} 股\n\n調整後預估剩餘現金：$${Math.round(c - diff).toLocaleString()}`;
+        }
     }
 </script>
 </body>
